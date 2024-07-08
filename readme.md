@@ -20,6 +20,6 @@ The new electonic is connected to:
  - servo motor position cup
  - Arduino nano
  - A4988 stepping motor module
- - nano DC/DC buck
+ - mini 360 DC/DC buck
  
  
