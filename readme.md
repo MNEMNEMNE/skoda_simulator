@@ -1,4 +1,4 @@
-# Skdoa simulator - demo
+# Skdoa simulator - demo test
 
 Functional demonstrator of simulator for driving school based on Skoda 120 cabin.
 
