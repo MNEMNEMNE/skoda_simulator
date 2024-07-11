@@ -50,56 +50,66 @@ bool offroadLeft = false, offroadRight = false;
 int targetSteerStepPosition = 0;
 // TODO: try to define this variable as local with predefined FALSE value
 
+int getTargetSteerPosition(bool offroadLeft, bool offroadRight)
+{
+  if(!offroadLeft && !offroadRight)
+  {
+    // drive on road
+
+    // drive forward full speed and straight
+    analogWrite(FORWARD_MOTOR, FORWARD_ONROAD_SPEED);
+    return 0;
+  }
+  
+  // drive offroad
+  
+  // slow down the forward speed
+  analogWrite(FORWARD_MOTOR, FORWARD_OFFROAD_SPEED);
+  
+  if(offroadLeft && !offroadRight)
+  {
+    // away of road to the left side - go to the right
+    return STEERING_STEPS;
+  }
+  else if (!offroadLeft && offroadRight)
+  {
+    // away of road to the right side - go to the left
+    return -STEERING_STEPS;
+  }
+  // completely away of the road - go straight
+  return 0;
+}
+
 // the loop function runs over and over again forever
 void loop() {
+
   bool newOffroadLeft = analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL;
   bool newOffroadRight = analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL; 
 
   if ( (offroadLeft != newOffroadLeft) || (offroadRight != newOffroadRight) )
   {
     // road state changed
+
+    // print states
     Serial.print("Left:");
     Serial.print(newOffroadLeft ? "offroad" : "onroad");
     Serial.print(", Right:");
     Serial.println(newOffroadRight ? "offroad" : "onroad");
 
-    int newTargetSteerStepPosition;
-    if(offroadLeft || offroadRight)
-    {
-      // drive offroad
-      // slow down the forward speed
-      analogWrite(FORWARD_MOTOR, FORWARD_OFFROAD_SPEED);
-     
-      if(offroadLeft && !offroadRight)
-      {
-        // away of road to the left side - go to the right
-        newTargetSteerStepPosition = STEERING_STEPS;
-      }
-      else if (!offroadLeft && offroadRight)
-      {
-        // away of road to the right side - go to the left
-        newTargetSteerStepPosition = -STEERING_STEPS;
-      }
-      else
-      {
-        // completely away of the road - go straight
-        newTargetSteerStepPosition = 0;
-      }
-   
-    }
-    else
-    {
-      // drive on road
-      // drive forward full speed and straight
-      analogWrite(FORWARD_MOTOR, FORWARD_ONROAD_SPEED);
-      newTargetSteerStepPosition = 0;
-    }
+    int newTargetSteerStepPosition = getTargetSteerPosition(newOffroadLeft, newOffroadRight);
 
     // set the stepper to go to the newTargetSteerStepPosition
-    int currentStepPosition = targetSteerStepPosition  - steer.getStepsRemaining();
-    steer.startMove(newTargetSteerStepPosition -  currentStepPosition);
+
+    int currentStepPosition = targetSteerStepPosition - steer.getStepsRemaining();
+
+    steer.startMove(newTargetSteerStepPosition - currentStepPosition);
+
     targetSteerStepPosition = newTargetSteerStepPosition;
   }
+  
+  // update states
+  offroadLeft = newOffroadLeft;
+  offroadRight = newOffroadRight; 
 
   // proceed the steer stepper motor task
   steer.nextAction();
