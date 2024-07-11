@@ -67,13 +67,14 @@ void setup() {
 // }
 
 
-int offroadLeft = false, offroadRight = false, targetSteerStepPosition = 0;
+bool offroadLeft = false, offroadRight = false;
+int targetSteerStepPosition = 0;
 // TODO: try to define this variable as local with predefined FALSE value
 
 // the loop function runs over and over again forever
 void loop() {
-  int newOffroadLeft = analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL;
-  int newOffroadRight = analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL; 
+  bool newOffroadLeft = analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL;
+  bool newOffroadRight = analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL; 
 
   if ( (offroadLeft != newOffroadLeft) || (offroadRight != newOffroadRight) )
   {
