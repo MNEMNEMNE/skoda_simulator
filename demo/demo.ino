@@ -1,13 +1,14 @@
 // pin definition
-#define FORWARD_MOTOR 10  // PWM outpiut pin for motor forward
+#define FORWARD_MOTOR 10  // PWM output pin for motor forward
 
 #define FORWARD_ONROAD_SPEED    200 // Speed of forward drive motor during drive on road 
 #define FORWARD_OFFROAD_SPEED   50  // Speed of forward drive motor during off-road drive
 
-#define OFFROAD_LEFT  A1   // Input pin for the phototransisor signalising left side off-road drive
-#define OFFROAD_RIGHT A2   // Input pin for the phototransisor signalising right side off-road drive
+#define OFFROAD_LEFT  A1   // Input pin for the phototransistor signaling left side off-road drive
+#define OFFROAD_RIGHT A2   // Input pin for the phototransistor signaling right side off-road drive
 
-#define OFFROAD_LEVEL 128  // Value of the off-road analog inputs bellow this value signalise the off-road drive
+#define OFFROAD_LEVEL 128  // Values of the off-road analog inputs below this value
+                           // signal the off-road drive
 
 // stepping motor pin definition
 #define STEERING_ENABLE_N_PIN   2
@@ -19,7 +20,7 @@
 // stepping motor parameters
 #define STEERING_STEPS          400 // step count for whole rotation
 #define STEERING_MICROSTEPS     1
-#define STEERING_RPM            120 // rotate speed of the steeribg motor during the steering movement
+#define STEERING_RPM            120 // rotate speed of the steering motor during the steering movement
 
 #define STEERING_STEPS          400          
 
@@ -114,7 +115,7 @@ void loop() {
       newTargetSteerStepPosition = 0;
     }
 
-    // set sthe stepper to go to the newTargetSteerStepPosition
+    // set the stepper to go to the newTargetSteerStepPosition
     int currentStepPosition = targetSteerStepPosition  - steer.getStepsRemaining();
     steer.startMove(newTargetSteerStepPosition -  currentStepPosition);
     targetSteerStepPosition = newTargetSteerStepPosition;
