@@ -25,5 +25,5 @@ The new electonic is connected to:
  ### Files:
  
 `demo/demo.ino` software for the Arduino Nano board  
-`schema.sch` schematic in eagle
-`redukce_motoru_simulator_autoskoly.f3d` 3D models for the 3D printed parts
+`schema.sch` schematic in eagle  
+`redukce_motoru_simulator_autoskoly.f3d` 3D models for the 3D printed parts  
