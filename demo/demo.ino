@@ -1,28 +1,42 @@
 // pin definition
 #define FORWARD_MOTOR 10  // PWM outpiut pin for motor forward
 
+#define FORWARD_ONROAD_SPEED    200 // Speed of forward drive motor during drive on road 
+#define FORWARD_OFFROAD_SPEED   50  // Speed of forward drive motor during off-road drive
+
 #define OFFROAD_LEFT  A1   // Input pin for the phototransisor signalising left side off-road drive
 #define OFFROAD_RIGHT A2   // Input pin for the phototransisor signalising right side off-road drive
 
-#define OFFROAD_LEVEL 128  // Values of the off-road analog inputs bellow this value signalise the off-road drive
+#define OFFROAD_LEVEL 128  // Value of the off-road analog inputs bellow this value signalise the off-road drive
 
 // stepping motor pin definition
-#define STEERING_ENABLE_N   2
-#define STEERING_DIR        7
-#define STEERING_STEP       6
-#define STEERING_MS1        3
-#define STEERING_MS2        4
-#define STEERING_MS3        5
+#define STEERING_ENABLE_N_PIN   2
+#define STEERING_DIR_PIN        7
+#define STEERING_STEP_PIN       6
+#define STEERING_MS1_PIN        3
+#define STEERING_MS2_PIN        4
+#define STEERING_MS3_PIN        5
 // stepping motor parameters
-#define STEERING_STEPS      400 // step count for whole rotation
-#define STEERING_MICROSTEPS 2
-#define STEERING_RPM        30 // rotate speed of the steeribg motor during the steering movement
+#define STEERING_STEPS          400 // step count for whole rotation
+#define STEERING_MICROSTEPS     1
+#define STEERING_RPM            120 // rotate speed of the steeribg motor during the steering movement
 
-#include"A4988.h"
+#define STEERING_STEPS          400          
 
-A4988 steering(STEERING_STEPS, STEERING_DIR, STEERING_STEP, STEERING_ENABLE_N, STEERING_MS1, STEERING_MS2, STEERING_MS3);
+#include <A4988.h>
+
+A4988 steer(STEERING_STEPS, STEERING_DIR_PIN, STEERING_STEP_PIN, STEERING_ENABLE_N_PIN, STEERING_MS1_PIN, STEERING_MS2_PIN, STEERING_MS3_PIN);
+
+typedef enum {
+
+};
 
 void setup() {
+
+  Serial.begin(115200);
+  Serial.println("");
+  Serial.println("Skoda driving school demonstrator made in LSM Stepanov 2024.");
+
   // pin initialize
   pinMode(LED_BUILTIN, OUTPUT);
  
@@ -30,54 +44,82 @@ void setup() {
 
   pinMode(OFFROAD_LEFT, INPUT);
   pinMode(OFFROAD_RIGHT, INPUT);
- 
-  steering.begin(STEERING_RPM, STEERING_MICROSTEPS); 
-  steering.setEnableActiveState(LOW);
-  steering.enable();
-  // pinMode(STEERING_ENABLE_N, OUTPUT);
-  // pinMode(STEERING_DIR, OUTPUT);
-  // pinMode(STEERING_STEP, OUTPUT);
-  // pinMode(STEERING_MS1, OUTPUT);
-  // pinMode(STEERING_MS2, OUTPUT);
-  // pinMode(STEERING_MS3, OUTPUT);
 
-// define microsteping for stepping motor
-//  MS1 | MS2 | MS3 | MODE
-// -----|-----|-----|----------
-//   0  |  0  |  0  | Full step
-//   1  |  0  |  0  | Half step
-//   0  |  1  |  0  | 1/4 step
-//   1  |  1  |  0  | 1/8 step
-//   1  |  1  |  1  | 1/16 step
-  // digitalWrite(STEERING_MS1, 1);
-  // digitalWrite(STEERING_MS2, 0);
-  // digitalWrite(STEERING_MS3, 0);
-  
-  // digitalWrite(STEERING_ENABLE_N, 0);
-
+  steer.setEnableActiveState(LOW);
+  steer.begin(STEERING_RPM, 2);
 }
 
-void SetLedOffRoad(bool offroad) {
-  if (offroad) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(100);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
-  } else {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(300);
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-}
+// void SetLedOffRoad(bool offroad) {
+//   if (offroad) {
+//     digitalWrite(LED_BUILTIN, HIGH);
+//     delay(100);
+//     digitalWrite(LED_BUILTIN, LOW);
+//     delay(100);
+//     digitalWrite(LED_BUILTIN, HIGH);
+//     delay(100);
+//     digitalWrite(LED_BUILTIN, LOW);
+//   } else {
+//     digitalWrite(LED_BUILTIN, HIGH);
+//     delay(300);
+//     digitalWrite(LED_BUILTIN, LOW);
+//   }
+// }
 
+
+int offroadLeft = false, offroadRight = false, targetSteerStepPosition = 0;
+// TODO: try to define this variable as local with predefined FALSE value
 
 // the loop function runs over and over again forever
 void loop() {
-  SetLedOffRoad(analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL);
-  delay(700);
-  SetLedOffRoad(analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL);
-  delay(1700);
+  int newOffroadLeft = analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL;
+  int newOffroadRight = analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL; 
+
+  if ( (offroadLeft != newOffroadLeft) || (offroadRight != newOffroadRight) )
+  {
+    // road state changed
+    Serial.print("Left:");
+    Serial.print(newOffroadLeft ? "offroad" : "onroad");
+    Serial.print(", Right:");
+    Serial.println(newOffroadRight ? "offroad" : "onroad");
+
+    int newTargetSteerStepPosition;
+    if(offroadLeft || offroadRight)
+    {
+      // drive offroad
+      // slow down the forward speed
+      analogWrite(FORWARD_MOTOR, FORWARD_OFFROAD_SPEED);
+     
+      if(offroadLeft && !offroadRight)
+      {
+        // away of road to the left side - go to the right
+        newTargetSteerStepPosition = STEERING_STEPS;
+      }
+      else if (!offroadLeft && offroadRight)
+      {
+        // away of road to the right side - go to the left
+        newTargetSteerStepPosition = -STEERING_STEPS;
+      }
+      else
+      {
+        // completely away of the road - go straight
+        newTargetSteerStepPosition = 0;
+      }
+   
+    }
+    else
+    {
+      // drive on road
+      // drive forward full speed and straight
+      analogWrite(FORWARD_MOTOR, FORWARD_ONROAD_SPEED);
+      newTargetSteerStepPosition = 0;
+    }
+
+    // set sthe stepper to go to the newTargetSteerStepPosition
+    int currentStepPosition = targetSteerStepPosition  - steer.getStepsRemaining();
+    steer.startMove(newTargetSteerStepPosition -  currentStepPosition);
+    targetSteerStepPosition = newTargetSteerStepPosition;
+  }
+
+  // proceed the steer stepper motor task
+  steer.nextAction();
 }
