@@ -46,10 +46,6 @@ void setup() {
   steer.begin(STEERING_RPM, 2);
 }
 
-bool offroadLeft = false, offroadRight = false;
-int targetSteerStepPosition = 0;
-// TODO: try to define this variable as local with predefined FALSE value
-
 int getTargetSteerPosition(bool offroadLeft, bool offroadRight)
 {
   if(!offroadLeft && !offroadRight)
@@ -83,6 +79,11 @@ int getTargetSteerPosition(bool offroadLeft, bool offroadRight)
 // the loop function runs over and over again forever
 void loop() {
 
+  static bool offroadLeft = false,
+              offroadRight = false;
+  static int targetSteerStepPosition = 0;
+
+  // get new states
   bool newOffroadLeft = analogRead(OFFROAD_LEFT) < OFFROAD_LEVEL;
   bool newOffroadRight = analogRead(OFFROAD_RIGHT) < OFFROAD_LEVEL; 
 
