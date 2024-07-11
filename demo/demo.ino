@@ -46,23 +46,6 @@ void setup() {
   steer.begin(STEERING_RPM, 2);
 }
 
-// void SetLedOffRoad(bool offroad) {
-//   if (offroad) {
-//     digitalWrite(LED_BUILTIN, HIGH);
-//     delay(100);
-//     digitalWrite(LED_BUILTIN, LOW);
-//     delay(100);
-//     digitalWrite(LED_BUILTIN, HIGH);
-//     delay(100);
-//     digitalWrite(LED_BUILTIN, LOW);
-//   } else {
-//     digitalWrite(LED_BUILTIN, HIGH);
-//     delay(300);
-//     digitalWrite(LED_BUILTIN, LOW);
-//   }
-// }
-
-
 bool offroadLeft = false, offroadRight = false;
 int targetSteerStepPosition = 0;
 // TODO: try to define this variable as local with predefined FALSE value
