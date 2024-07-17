@@ -19,11 +19,12 @@ The new electonic is connected to:
  - stepping motor axis connect
  - servo motor position cup
  - Arduino nano
- - A4988 stepping motor module
+ - A4988 stepping motor module (current set to 0,33A)
  - mini 360 DC/DC buck
  
  ### Files:
  
 `demo/demo.ino` software for the Arduino Nano board  
 `schema.sch` schematic in eagle  
-`redukce_motoru_simulator_autoskoly.f3d` 3D models for the 3D printed parts  
+`redukce_motoru_simulator_autoskoly.f3d` 3D models for the 3D printed parts    
+`stl/*.stl` stl files for 3d printed parts  
